@@ -5,9 +5,10 @@ import (
     "fmt"
     "os"
     "strconv"
+    "strings"
 )
 
-// getRating functie blijft ongewijzigd
+// getRating functie om level en rating te berekenen
 func getRating(maxPos int, score int) (int, int) {
     var level int
     var rating int
@@ -32,8 +33,11 @@ func main() {
     var maxPos int
     var names []string
     var scores []int
+
+    // Scanner om invoer te lezen
     scanner := bufio.NewScanner(os.Stdin)
 
+    // Max punten mogelijk invoeren
     fmt.Print("Max punten mogelijk: ")
     if scanner.Scan() {
         maxPosStr := scanner.Text()
@@ -45,6 +49,7 @@ func main() {
         }
     }
 
+    // Namen invoeren
     fmt.Println("Voer namen in, één per lijn. Voer '.' in om te stoppen.")
     for scanner.Scan() {
         name := scanner.Text()
@@ -54,13 +59,23 @@ func main() {
         names = append(names, name)
     }
 
+    // Scores invoeren
     fmt.Println("Voer scores in, één per lijn. Voer '.' in om te stoppen.")
     for scanner.Scan() {
         line := scanner.Text()
         if line == "." {
             break
         }
-        score, err := strconv.Atoi(line)
+        // Splits de invoer op "/"
+        parts := strings.Split(line, "/")
+        if len(parts) < 1 {
+            fmt.Println("Ongeldige score, probeer opnieuw.")
+            continue
+        }
+        // Neem het eerste deel en verwijder spaties
+        scoreStr := strings.TrimSpace(parts[0])
+        // Zet om naar integer
+        score, err := strconv.Atoi(scoreStr)
         if err != nil {
             fmt.Println("Ongeldige score, probeer opnieuw.")
             continue
@@ -68,17 +83,19 @@ func main() {
         scores = append(scores, score)
     }
 
+    // Controleer op fouten in de scanner
     if err := scanner.Err(); err != nil {
         fmt.Println("Fout bij het lezen van invoer:", err)
         return
     }
 
+    // Controleer of het aantal namen en scores overeenkomt
     if len(names) != len(scores) {
         fmt.Println("Aantal namen en scores komen niet overeen.")
         return
     }
 
-    // OUTPUT
+    // Resultaten weergeven
     fmt.Println("NAAM   LEVEL   RATING")
     for i := 0; i < len(names); i++ {
         level, rating := getRating(maxPos, scores[i])
