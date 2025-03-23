@@ -9,34 +9,36 @@ import (
 )
 
 // getRating functie om level en rating te berekenen
-func getRating(maxPos int, score int) (int, int) {
+func getRating(maxPos int, midScore int, score int) (int, int) {
 	var level, rating, perM int
-	//      5.26    <25   30   40    45    50    53    55    57    60    65
 	var PRM = []int {0, 25, 925, 1275, 2500, 3950, 4700, 5300, 5750, 6275}
-	//               0  131  73    263   276   164   115   89    29     0  
-	//var PRM = []int {250, 500, 1175, 1625, 2975, 3875, 4325, 4775, 5675, 6050}
 	perM = (score * 1000) / maxPos
-	
+	if midScore != 2500 {
+		var multiplier int = (midScore * 1000) / 2500
+		for i := 1; i < 10; i++ {
+			PRM[i] =(PRM[i] * multiplier) / 1000
+		}
+	}		
 	if perM < 250 {
-		rating = ((PRM[0] / (25-0)) * perM) / 10 // 2 rating per promile onder 250 promile
+		rating = ((PRM[0] / (25-0)) * perM) / 10 // 0 rating per promile onder 250 promile
 	} else if perM < 300 {
-		rating = PRM[0] + ((((PRM[1]-PRM[0]) / (30-25)) * (perM-250)) / 10) //X rating per promile boven 250 promile 
+		rating = PRM[0] + ((((PRM[1]-PRM[0]) / (30-25)) * (perM-250)) / 10) //0.5 rating per promile boven 250 promile 
 	} else if perM < 400 {
-		rating = PRM[1] + ((((PRM[2]-PRM[1]) / (40-30)) * (perM-300)) / 10) //X rating per promile boven 300 promile
+		rating = PRM[1] + ((((PRM[2]-PRM[1]) / (40-30)) * (perM-300)) / 10) //9 rating per promile boven 300 promile
 	} else if perM < 450 {
-		rating = PRM[2] + ((((PRM[3]-PRM[2]) / (45-40)) * (perM-400)) / 10) //X rating per promile boven 300 promile
+		rating = PRM[2] + ((((PRM[3]-PRM[2]) / (45-40)) * (perM-400)) / 10) //7 rating per promile boven 300 promile
 	} else if perM < 500 {
-		rating = PRM[3] + ((((PRM[4]-PRM[3]) / (50-45)) * (perM-450)) / 10) //X rating per promile boven 400 promile
+		rating = PRM[3] + ((((PRM[4]-PRM[3]) / (50-45)) * (perM-450)) / 10) //25 rating per promile boven 400 promile
 	} else if perM < 530 {
-		rating = PRM[4] + ((((PRM[5]-PRM[4]) / (53-50)) * (perM-500)) / 10) //X rating per promile boven 500 promile
+		rating = PRM[4] + ((((PRM[5]-PRM[4]) / (53-50)) * (perM-500)) / 10) //48 rating per promile boven 500 promile
 	} else if perM < 550 {
-		rating = PRM[5] + ((((PRM[6]-PRM[5]) / (55-53)) * (perM-530)) / 10) //X rating per promile boven 530 promile
+		rating = PRM[5] + ((((PRM[6]-PRM[5]) / (55-53)) * (perM-530)) / 10) //37 rating per promile boven 530 promile
 	} else if perM < 570 {
-		rating = PRM[6] + ((((PRM[7]-PRM[6]) / (57-55)) * (perM-550)) / 10) //X rating per promile boven 550 promile
+		rating = PRM[6] + ((((PRM[7]-PRM[6]) / (57-55)) * (perM-550)) / 10) //30 rating per promile boven 550 promile
 	} else if perM < 600 {
-		rating = PRM[7] + ((((PRM[8]-PRM[7]) / (60-57)) * (perM-570)) / 10) //X rating per promile boven 570 promile
+		rating = PRM[7] + ((((PRM[8]-PRM[7]) / (60-57)) * (perM-570)) / 10) //15 rating per promile boven 570 promile
 	} else if perM < 650 {
-		rating = PRM[8] + ((((PRM[9]-PRM[8]) / (65-60)) * (perM-600)) / 10) //12 rating per promile ONDER 650 PROMILE
+		rating = PRM[8] + ((((PRM[9]-PRM[8]) / (65-60)) * (perM-600)) / 10) //20 rating per promile ONDER 650 PROMILE
 	} else {
 		rating = PRM[9] + ((perM-700)*20) //20 rating per promile boven 700 promile
 	}
@@ -48,7 +50,7 @@ func getRating(maxPos int, score int) (int, int) {
 }
 
 func main() {
-    var maxPos int
+    var maxPos, midScore int
     var names []string
     var scores []int
 
@@ -63,6 +65,18 @@ func main() {
         maxPos, err = strconv.Atoi(maxPosStr)
         if err != nil {
             fmt.Println("Ongeldige maxPos, probeer opnieuw.")
+            return
+        }
+    }
+	
+	// Rating op 50% 
+    fmt.Print("Rating op 50% (default 2500): ")
+    if scanner.Scan() {
+        midScoreStr := scanner.Text()
+        var err error
+        midScore, err = strconv.Atoi(midScoreStr)
+        if err != nil {
+            fmt.Println("Ongeldige midScore, probeer opnieuw.")
             return
         }
     }
@@ -116,7 +130,7 @@ func main() {
     // Resultaten weergeven
     fmt.Println("NAAM   LEVEL   RATING")
     for i := 0; i < len(names); i++ {
-        level, rating := getRating(maxPos, scores[i])
+        level, rating := getRating(maxPos, midScore, scores[i])
         fmt.Printf("%s   %d   %d\n", names[i], level, rating)
     }
 	fmt.Scanln()
